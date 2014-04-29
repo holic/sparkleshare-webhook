@@ -19,6 +19,11 @@ app.post "/github/:server?/:channel", (req, res, next) ->
 	if event is "ping"
 		{zen} = req.body
 		res.send zen
+
+	return next new Error "Expected `push` event." unless event is "push"
+
+	{after} = req.body
+	return next new Error "Expected `after` commit hash in payload." unless after?
 	
 	{server, channel} = req.params
 	{hostname, port} = url.parse server if server?
