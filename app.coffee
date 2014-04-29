@@ -14,15 +14,18 @@ app.get "/", (req, res, next) ->
 # channel ID is from .sparkleshare file in root directory
 
 app.post "/github/:server?/:channel", (req, res, next) ->
+	event = req.get "X-GitHub-Event"
+
+	if event is "ping"
+		{zen} = req.body
+		res.send zen
+	
 	{server, channel} = req.params
 	{hostname, port} = url.parse server if server?
 
 	unless hostname? and port?
 		hostname = "notifications.sparkleshare.org"
 		port = 443
-
-	{after} = req.body
-	return next new Error "No `after` commit hash found in payload." unless after?
 
 	socket = net.connect port, hostname, ->
 		console.log "connected to notification server"
